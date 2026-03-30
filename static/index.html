@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude Puddle</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/lib/highlight.css" />
+</head>
+<body>
+
+  <!-- ========== AUTH VIEW ========== -->
+  <div id="view-auth" class="view">
+    <div class="auth-container">
+      <h1>Claude Puddle</h1>
+
+      <div id="auth-tabs" class="tabs">
+        <button class="tab-btn active" data-tab="login">Sign in</button>
+        <button class="tab-btn" data-tab="register">Register</button>
+      </div>
+
+      <!-- Login form -->
+      <form id="form-login" class="auth-form">
+        <label>Email
+          <input type="email" id="login-email" required autocomplete="email" />
+        </label>
+        <label>Password
+          <input type="password" id="login-password" required autocomplete="current-password" />
+        </label>
+        <button type="submit">Sign in</button>
+        <p class="auth-error" id="login-error"></p>
+      </form>
+
+      <!-- Register form -->
+      <form id="form-register" class="auth-form hidden">
+        <label>Display name
+          <input type="text" id="reg-name" required />
+        </label>
+        <label>Lawrence email
+          <input type="email" id="reg-email" required autocomplete="email" placeholder="you@lawrence.edu" />
+        </label>
+        <label>Password
+          <input type="password" id="reg-password" required autocomplete="new-password" />
+        </label>
+        <label>Invite code
+          <input type="text" id="reg-invite" required autocomplete="off" />
+        </label>
+        <button type="submit">Register</button>
+        <p class="auth-error" id="reg-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========== CHAT VIEW ========== -->
+  <div id="view-chat" class="view hidden">
+    <div class="layout">
+
+      <!-- Sidebar -->
+      <aside id="sidebar">
+        <div class="sidebar-header">
+          <span id="user-display-name"></span>
+          <button id="btn-logout" class="btn-text">Sign out</button>
+        </div>
+
+        <button id="btn-new-conversation" class="btn-primary">+ New conversation</button>
+
+        <ul id="conversation-list"></ul>
+
+        <div id="sidebar-footer">
+          <button id="btn-shared-view" class="btn-text hidden">Shared with me</button>
+          <button id="btn-change-password" class="btn-text">Change password</button>
+        </div>
+      </aside>
+
+      <!-- Main chat area -->
+      <main id="chat-main">
+        <div id="chat-empty-state">
+          <p>Select a conversation or start a new one.</p>
+        </div>
+
+        <div id="chat-active" class="hidden">
+          <div id="chat-header">
+            <h2 id="chat-title"></h2>
+            <div id="chat-actions">
+              <button id="btn-share" class="btn-text">Share with instructor</button>
+              <button id="btn-export" class="btn-text">Export</button>
+              <button id="btn-delete-conversation" class="btn-text btn-danger">Delete</button>
+            </div>
+          </div>
+
+          <div id="truncation-notice" class="notice hidden">
+            This conversation has exceeded the context window — earlier messages have been removed to continue. For best results, start a new chat.
+          </div>
+
+          <div id="messages"></div>
+
+          <div id="chat-input-area">
+            <div id="attachment-preview" class="hidden">
+              <span id="attachment-name"></span>
+              <button id="btn-remove-attachment" aria-label="Remove attachment">×</button>
+            </div>
+            <div id="input-row">
+              <label id="btn-attach" title="Attach .java, .txt, or .md file">
+                <input type="file" id="file-input" accept=".java,.txt,.md" class="sr-only" />
+                📎
+              </label>
+              <textarea id="message-input" placeholder="Ask a question..." rows="1"></textarea>
+              <button id="btn-send">Send</button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ========== SHARED VIEW (instructor only) ========== -->
+  <div id="view-shared" class="view hidden">
+    <div class="layout">
+      <aside id="shared-sidebar">
+        <div class="sidebar-header">
+          <span id="shared-user-name"></span>
+          <button id="btn-shared-logout" class="btn-text">Sign out</button>
+        </div>
+        <button id="btn-back-to-chat" class="btn-text">← Back to my chats</button>
+        <h3>Shared with me</h3>
+        <ul id="shared-conversation-list"></ul>
+      </aside>
+      <main id="shared-main">
+        <div id="shared-empty-state"><p>Select a conversation.</p></div>
+        <div id="shared-chat-active" class="hidden">
+          <div id="shared-chat-header">
+            <h2 id="shared-chat-title"></h2>
+            <p id="shared-chat-owner"></p>
+          </div>
+          <div id="shared-messages"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ========== CHANGE PASSWORD MODAL ========== -->
+  <div id="modal-change-password" class="modal hidden">
+    <div class="modal-content">
+      <h2>Change password</h2>
+      <form id="form-change-password">
+        <label>Current password
+          <input type="password" id="cp-current" required />
+        </label>
+        <label>New password
+          <input type="password" id="cp-new" required />
+        </label>
+        <div class="modal-actions">
+          <button type="submit">Update</button>
+          <button type="button" id="btn-cancel-password">Cancel</button>
+        </div>
+        <p class="auth-error" id="cp-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <script src="/lib/marked.min.js"></script>
+  <script src="/lib/highlight.min.js"></script>
+  <script src="/lib/highlight-java.min.js"></script>
+  <script src="/js/app.js" type="module"></script>
+</body>
+</html>
