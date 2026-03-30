@@ -96,6 +96,7 @@ async function sendMessage() {
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let assistantEl = null;
+    let toolIndicatorEl = null;
     let buffer = '';
 
     while (true) {
@@ -115,6 +116,11 @@ async function sendMessage() {
         const data = dataMatch[1];
 
         if (eventType === 'token') {
+          // Remove tool indicator if present (new tokens mean tool call finished)
+          if (toolIndicatorEl) {
+            toolIndicatorEl.remove();
+            toolIndicatorEl = null;
+          }
           if (!assistantEl) {
             thinkingEl.remove();
             assistantEl = createMessageEl('assistant');
@@ -125,20 +131,34 @@ async function sendMessage() {
           messagesEl.scrollTop = messagesEl.scrollHeight;
 
         } else if (eventType === 'tool_start') {
-          thinkingEl.textContent = data;
+          // thinkingEl may already be detached if text tokens preceded this tool call
+          if (thinkingEl.isConnected) {
+            thinkingEl.textContent = data;
+          } else {
+            toolIndicatorEl = appendThinkingIndicator();
+            toolIndicatorEl.textContent = data;
+          }
 
         } else if (eventType === 'truncated') {
           document.getElementById('truncation-notice').classList.remove('hidden');
 
         } else if (eventType === 'done') {
-          // Final full text arrives; re-render in case of any delta issues
-          if (assistantEl) {
+          // Clean up any lingering indicators
+          if (toolIndicatorEl) { toolIndicatorEl.remove(); toolIndicatorEl = null; }
+          if (thinkingEl.isConnected) thinkingEl.remove();
+          if (!assistantEl) {
+            // No tokens were streamed (tool used with no preamble text)
+            assistantEl = createMessageEl('assistant');
+            messagesEl.appendChild(assistantEl);
             assistantEl.dataset.raw = data;
-            renderMarkdown(assistantEl);
           }
+          // Re-render fully now that all text is accumulated
+          renderMarkdown(assistantEl);
+          messagesEl.scrollTop = messagesEl.scrollHeight;
           await refreshConversationList();
 
         } else if (eventType === 'error') {
+          if (toolIndicatorEl) { toolIndicatorEl.remove(); toolIndicatorEl = null; }
           if (assistantEl) {
             assistantEl.textContent = `Error: ${data}`;
           } else {
