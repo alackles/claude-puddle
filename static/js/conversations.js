@@ -6,14 +6,36 @@ let onSelectCallback = null;
 export function initConversations(onSelect) {
   onSelectCallback = onSelect;
 
-  document.getElementById('btn-new-conversation').addEventListener('click', async () => {
-    const title = prompt('Name this conversation:');
-    if (!title || !title.trim()) return;
+  const modal = document.getElementById('modal-new-conversation');
+  const form = document.getElementById('form-new-conversation');
+  const titleInput = document.getElementById('new-conv-title');
+  const btnCancel = document.getElementById('btn-cancel-new-conversation');
+
+  document.getElementById('btn-new-conversation').addEventListener('click', () => {
+    titleInput.value = '';
+    modal.classList.remove('hidden');
+    titleInput.focus();
+  });
+
+  btnCancel.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.add('hidden');
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    if (!title) return;
+
+    modal.classList.add('hidden');
 
     const res = await fetch('/conversations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title: title.trim() }),
+      body: JSON.stringify({ title }),
     });
 
     if (res.ok) {

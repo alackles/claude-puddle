@@ -7,10 +7,11 @@ from app.db.queries import (
     get_conversation,
     create_conversation,
     delete_conversation,
+    rename_conversation,
     get_messages_for_conversation,
 )
 from app.auth.dependencies import get_current_user
-from app.models.schemas import ConversationCreateRequest, ConversationResponse, MessageResponse
+from app.models.schemas import ConversationCreateRequest, ConversationRenameRequest, ConversationResponse, MessageResponse
 
 router = APIRouter(prefix="/conversations", tags=["conversations"])
 
@@ -82,6 +83,27 @@ async def get_conversation_with_messages(
             for m in messages
         ],
     }
+
+
+@router.patch("/{conversation_id}")
+async def rename_conversation_endpoint(
+    conversation_id: int,
+    body: ConversationRenameRequest,
+    db: aiosqlite.Connection = Depends(get_db),
+    user: aiosqlite.Row = Depends(get_current_user),
+):
+    conv = await get_conversation(db, conversation_id)
+    if conv is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    if conv["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    title = body.title.strip()
+    if not title:
+        raise HTTPException(status_code=422, detail="Title cannot be empty")
+
+    await rename_conversation(db, conversation_id, title)
+    return {"message": "Renamed"}
 
 
 @router.delete("/{conversation_id}")

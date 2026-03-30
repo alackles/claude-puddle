@@ -93,6 +93,13 @@ async def delete_conversation(db: aiosqlite.Connection, conversation_id: int):
     await db.commit()
 
 
+async def rename_conversation(db: aiosqlite.Connection, conversation_id: int, title: str):
+    await db.execute(
+        "UPDATE conversations SET title = ? WHERE id = ?", (title, conversation_id)
+    )
+    await db.commit()
+
+
 async def touch_conversation(db: aiosqlite.Connection, conversation_id: int):
     await db.execute(
         "UPDATE conversations SET updated_at = datetime('now') WHERE id = ?",

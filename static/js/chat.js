@@ -29,6 +29,8 @@ export function initChat() {
   document.getElementById('btn-delete-conversation').addEventListener('click', deleteCurrentConversation);
 
   document.getElementById('btn-export').addEventListener('click', exportConversation);
+
+  document.getElementById('chat-title').addEventListener('click', startTitleEdit);
 }
 
 async function loadConversation(id) {
@@ -232,6 +234,53 @@ function clearAttachment() {
   pendingAttachment = null;
   document.getElementById('attachment-preview').classList.add('hidden');
   document.getElementById('attachment-name').textContent = '';
+}
+
+function startTitleEdit() {
+  if (!state.conversationId) return;
+  const titleEl = document.getElementById('chat-title');
+  const current = titleEl.textContent;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = current;
+  input.className = 'title-edit-input';
+  titleEl.replaceWith(input);
+  input.select();
+
+  async function commit() {
+    const newTitle = input.value.trim();
+    const restored = document.createElement('h2');
+    restored.id = 'chat-title';
+    restored.addEventListener('click', startTitleEdit);
+
+    if (newTitle && newTitle !== current) {
+      const res = await fetch(`/conversations/${state.conversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle }),
+      });
+      restored.textContent = res.ok ? newTitle : current;
+      if (res.ok) await refreshConversationList();
+    } else {
+      restored.textContent = current;
+    }
+    input.replaceWith(restored);
+  }
+
+  function cancel() {
+    const restored = document.createElement('h2');
+    restored.id = 'chat-title';
+    restored.textContent = current;
+    restored.addEventListener('click', startTitleEdit);
+    input.replaceWith(restored);
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { input.removeEventListener('blur', commit); cancel(); }
+  });
 }
 
 async function exportConversation() {

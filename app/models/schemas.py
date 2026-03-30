@@ -30,6 +30,10 @@ class ConversationCreateRequest(BaseModel):
     title: str
 
 
+class ConversationRenameRequest(BaseModel):
+    title: str
+
+
 class MessageRequest(BaseModel):
     content: str
     attachment_filename: Optional[str] = None

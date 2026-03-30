@@ -13,6 +13,7 @@
   <div id="view-auth" class="view">
     <div class="auth-container">
       <h1>Claude Puddle</h1>
+      <p class="auth-subtitle">CMSC 150 Learning Assistant</p>
 
       <div id="auth-tabs" class="tabs">
         <button class="tab-btn active" data-tab="login">Sign in</button>
@@ -136,6 +137,22 @@
           <div id="shared-messages"></div>
         </div>
       </main>
+    </div>
+  </div>
+
+  <!-- ========== NEW CONVERSATION MODAL ========== -->
+  <div id="modal-new-conversation" class="modal hidden">
+    <div class="modal-content">
+      <h2>New conversation</h2>
+      <form id="form-new-conversation">
+        <label>Name
+          <input type="text" id="new-conv-title" required placeholder="e.g. Lab 3 question" autocomplete="off" />
+        </label>
+        <div class="modal-actions">
+          <button type="submit">Create</button>
+          <button type="button" id="btn-cancel-new-conversation">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 
